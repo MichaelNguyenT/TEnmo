@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TenmoServer.Models
 {
-    public class Accounts : User
+    public class Account : User
     {
         public int? AccountID { get; private set; }
 

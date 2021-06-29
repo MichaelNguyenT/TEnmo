@@ -87,7 +87,15 @@ namespace TenmoClient
                 }
                 else if (menuSelection == 1)
                 {
+                    try
+                    {
+                        UserService.GetBalance(UserService.GetUserId());
+                    }
+                    catch (Exception)
+                    {
 
+                        throw;
+                    }
                 }
                 else if (menuSelection == 2)
                 {
