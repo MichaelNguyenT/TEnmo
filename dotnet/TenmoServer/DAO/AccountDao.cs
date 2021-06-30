@@ -18,9 +18,9 @@ namespace TenmoServer.DAO
             connectionString = dbConnectionString;
         }
 
-        public string GetBalance()
+        public decimal GetBalance(int userId)
         {
-            string returnBalance = "";
+            decimal balance = 0.0M;
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
@@ -28,21 +28,20 @@ namespace TenmoServer.DAO
                     conn.Open();
                     SqlCommand cmd = new SqlCommand("SELECT balance " +
                         "FROM accounts WHERE user_id = @userID", conn);
-                    cmd.Parameters.AddWithValue("@userID", userID);
+                    cmd.Parameters.AddWithValue("@userID", userId);
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     if (reader.Read())
                     {
-                        decimal balance = Convert.ToDecimal(reader);
-                        returnBalance = "Your current account balance is: " + balance;
+                        balance = Convert.ToDecimal(reader["balance"]);
                     }
                 }
             }
-            catch(SqlException)
+            catch (SqlException)
             {
                 throw;
             }
-            return returnBalance;
+            return balance;
         }
 
 

@@ -89,7 +89,7 @@ namespace TenmoClient
                 {
                     try
                     {
-                        UserService.GetBalance(UserService.GetUserId());
+                        authService.GetBalance();
                     }
                     catch (Exception)
                     {

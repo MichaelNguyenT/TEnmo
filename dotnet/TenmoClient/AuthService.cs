@@ -2,15 +2,47 @@
 using RestSharp.Authenticators;
 using System;
 using TenmoClient.Models;
+using TenmoClient.Exceptions;
 
 namespace TenmoClient
 {
     public class AuthService
     {
         private readonly static string API_BASE_URL = "https://localhost:44315/";
-        private readonly IRestClient client = new RestClient();
+        private readonly static string Transaction_URL = API_BASE_URL + "transaction";
+        private readonly static string Account_URL = API_BASE_URL + "Account";
+        private readonly IRestClient client;
 
-        //login endpoints
+        public AuthService()
+        {
+            client = new RestClient();
+        }
+
+        public AuthService(IRestClient restClient)
+        {
+            client = restClient;
+        }
+
+        public void ProcessErrorResponse(IRestResponse response)
+        {
+            if (response.ResponseStatus != ResponseStatus.Completed)
+            {
+                throw new NoResponseException("Error occurred - unable to reach server.");
+            }
+            else if (!response.IsSuccessful)
+            {
+                if (response.StatusCode.ToString() == "Unauthorized")
+                {
+                    throw new UnauthorizedException();
+                }
+                else if (response.StatusCode.ToString() == "Forbidden")
+                {
+                    throw new ForbiddenException();
+                }
+                throw new NonSuccessException((int)response.StatusCode);
+            }
+        }
+
         public bool Register(LoginUser registerUser)
         {
             RestRequest request = new RestRequest(API_BASE_URL + "login/register");
@@ -66,6 +98,22 @@ namespace TenmoClient
             else
             {
                 client.Authenticator = new JwtAuthenticator(response.Data.Token);
+                return response.Data;
+            }
+        }
+
+        public decimal GetBalance()
+        {
+            RestRequest request = new RestRequest(Account_URL);
+            IRestResponse<decimal> response = client.Get<decimal>(request);
+
+            if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)
+            {
+                ProcessErrorResponse(response);
+                return 0;
+            }
+            else
+            {
                 return response.Data;
             }
         }

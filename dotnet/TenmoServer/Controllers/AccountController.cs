@@ -16,16 +16,20 @@ namespace TenmoServer.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountDao _dao;
+        private readonly IUserDao _userDao;
 
-        public AccountController(IAccountDao accountDao)
+        public AccountController(IAccountDao accountDao, IUserDao userDao)
         {
-
+            _dao = accountDao;
+            _userDao = userDao;
         }
 
-        [HttpGet]
-        public string GetBalance()
+
+        [HttpGet("Account")]
+        public decimal GetBalance()
         {
-            string returnAccount = _dao.GetBalance();
+            User user = _userDao.GetUser(User.Identity.Name);
+            decimal returnAccount = _dao.GetBalance(user.UserId);
             return returnAccount;
         }
 
