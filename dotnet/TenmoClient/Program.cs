@@ -89,12 +89,12 @@ namespace TenmoClient
                 {
                     try
                     {
-                        authService.GetBalance();
+                        Console.WriteLine("Your current account balance is: $" + authService.GetBalance());
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
 
-                        throw;
+                        Console.WriteLine(e.Message);
                     }
                 }
                 else if (menuSelection == 2)
@@ -107,7 +107,30 @@ namespace TenmoClient
                 }
                 else if (menuSelection == 4)
                 {
+                    try
+                    {
+                        List<User> listOfUsers = authService.GetUsers();
+                        foreach (User user in listOfUsers)
+                        {
+                            Console.WriteLine();
+                            Console.WriteLine($"{user.UserId} , {user.Username}");
+                        }
+                        Console.WriteLine();
+                        Console.WriteLine("---------");
+                        Console.WriteLine("Who would you like to send money to? ");
+                        string receiverIdString = Console.ReadLine();
+                        int receiverId = int.Parse(receiverIdString);
+                        Console.WriteLine("How much money would you like to send? ");
+                        string amountAsString = Console.ReadLine();
+                        decimal amount = decimal.Parse(amountAsString);
+                        Console.WriteLine("---------");
+                        Console.WriteLine("Your remaining balance is $" + authService.SendMoney(receiverId, amount));
+                    }
+                    catch (Exception e)
+                    {
 
+                        Console.WriteLine(e.Message);
+                    }
                 }
                 else if (menuSelection == 5)
                 {

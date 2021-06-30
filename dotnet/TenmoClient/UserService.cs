@@ -7,10 +7,10 @@ namespace TenmoClient
     public static class UserService
     {
         private static ApiUser user = new ApiUser();
-        private readonly static string API_BASE_URL = "https://localhost:44315/";
-        private readonly static IRestClient client;
+        //private readonly static string API_BASE_URL = "https://localhost:44315/";
+        //private readonly static IRestClient client;
 
-        //public static bool LoggedIn { get { return !string.IsNullOrWhiteSpace(user.Token); } }
+        public static bool LoggedIn { get { return !string.IsNullOrWhiteSpace(user.Token); } }
 
         public static void SetLogin(ApiUser u)
         {

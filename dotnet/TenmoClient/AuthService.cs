@@ -3,6 +3,7 @@ using RestSharp.Authenticators;
 using System;
 using TenmoClient.Models;
 using TenmoClient.Exceptions;
+using System.Collections.Generic;
 
 namespace TenmoClient
 {
@@ -10,7 +11,8 @@ namespace TenmoClient
     {
         private readonly static string API_BASE_URL = "https://localhost:44315/";
         private readonly static string Transaction_URL = API_BASE_URL + "transaction";
-        private readonly static string Account_URL = API_BASE_URL + "Account";
+        private readonly static string Account_URL = API_BASE_URL + "account";
+        private readonly static string USER_URL = API_BASE_URL + "user";
         private readonly IRestClient client;
 
         public AuthService()
@@ -116,6 +118,28 @@ namespace TenmoClient
             {
                 return response.Data;
             }
+        }
+
+        public List<User> GetUsers()
+        {
+            RestRequest request = new RestRequest(USER_URL);
+            IRestResponse<List<User>> response = client.Get<List<User>>(request);
+            if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)
+            {
+                ProcessErrorResponse(response);
+            }
+            return response.Data;
+        }
+
+        public decimal SendMoney(int receiverId, decimal amount)
+        {
+            RestRequest request = new RestRequest(Account_URL + $"/{receiverId}/{amount}");
+            IRestResponse<decimal> response = client.Put<decimal>(request);
+            if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)
+            {
+                ProcessErrorResponse(response);
+            }
+            return response.Data;
         }
     }
 }

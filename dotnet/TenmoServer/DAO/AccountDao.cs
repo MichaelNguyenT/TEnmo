@@ -37,13 +37,11 @@ namespace TenmoServer.DAO
                     }
                 }
             }
-            catch (SqlException)
+            catch (SqlException e)
             {
-                throw;
+                Console.WriteLine(e.Message);
             }
             return balance;
         }
-
-
     }
 }

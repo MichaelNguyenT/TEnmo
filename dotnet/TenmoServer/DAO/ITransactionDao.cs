@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace TenmoServer.DAO
 {
-    interface ITransactionDao
+    public interface ITransactionDao
     {
-        ActionResult SendMoney(int accountID, decimal amount);
+        decimal SendMoney(int senderId,int receiverId, decimal amount);
         List<Transaction> ViewTransactions(int accountID);
         Transaction ViewTransactionDetails(int transactionID);
     }

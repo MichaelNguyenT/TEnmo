@@ -11,8 +11,6 @@ namespace TenmoServer.Controllers
 { 
     [Route("[controller]")]
     [ApiController]
-    [Authorize]
-
     public class AccountController : ControllerBase
     {
         private readonly IAccountDao _dao;
@@ -24,8 +22,8 @@ namespace TenmoServer.Controllers
             _userDao = userDao;
         }
 
-
-        [HttpGet("Account")]
+        [Authorize]
+        [HttpGet("/account")]
         public decimal GetBalance()
         {
             User user = _userDao.GetUser(User.Identity.Name);
