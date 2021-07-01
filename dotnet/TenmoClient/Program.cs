@@ -99,7 +99,7 @@ namespace TenmoClient
                 }
                 else if (menuSelection == 2)
                 {
-
+                    //todoooooooo view transaction
                 }
                 else if (menuSelection == 3)
                 {
@@ -112,19 +112,32 @@ namespace TenmoClient
                         List<User> listOfUsers = authService.GetUsers();
                         foreach (User user in listOfUsers)
                         {
-                            Console.WriteLine();
-                            Console.WriteLine($"{user.UserId} , {user.Username}");
+                            if (user.UserId != UserService.GetUserId())
+                            {
+                                Console.WriteLine();
+                                Console.WriteLine($"{user.UserId} , {user.Username}");
+                            }  
                         }
                         Console.WriteLine();
                         Console.WriteLine("---------");
                         Console.WriteLine("Who would you like to send money to? ");
                         string receiverIdString = Console.ReadLine();
                         int receiverId = int.Parse(receiverIdString);
-                        Console.WriteLine("How much money would you like to send? ");
-                        string amountAsString = Console.ReadLine();
-                        decimal amount = decimal.Parse(amountAsString);
-                        Console.WriteLine("---------");
-                        Console.WriteLine("Your remaining balance is $" + authService.SendMoney(receiverId, amount));
+
+                        //TODO fine tune selecting an ID thats not yourself
+                        if (receiverId == UserService.GetUserId())
+                        {
+                            Console.WriteLine("You are unable to send money to yourself, please select a valid Id.");
+                        }
+                        else
+                        {
+                            //Display error message if amount sent is more than balance
+                            Console.WriteLine("How much money would you like to send? ");
+                            string amountAsString = Console.ReadLine();
+                            decimal amount = decimal.Parse(amountAsString);
+                            Console.WriteLine("---------");
+                            Console.WriteLine("Your remaining balance is $" + authService.SendMoney(receiverId, amount));
+                        }
                     }
                     catch (Exception e)
                     {

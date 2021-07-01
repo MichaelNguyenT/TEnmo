@@ -20,7 +20,6 @@ namespace TenmoServer.DAO
         public User GetUser(string username)
         {
             User returnUser = null;
-
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
@@ -41,8 +40,34 @@ namespace TenmoServer.DAO
             {
                 throw;
             }
-
             return returnUser;
+        }
+        public int GetAccount(int userId)
+        {
+            int accountId = 0;
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    SqlCommand cmd = new SqlCommand("SELECT account_id FROM accounts WHERE user_id = @userId", conn);
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        accountId = Convert.ToInt32(reader["account_id"]);
+                    }
+                }
+            }
+            catch (SqlException)
+            {
+                throw;
+            }
+
+            return accountId;
         }
 
         public List<User> GetUsers()
