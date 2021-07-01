@@ -141,5 +141,16 @@ namespace TenmoClient
             }
             return response.Data;
         }
+
+        public List<Transaction> GetTransactions()
+        {
+            RestRequest request = new RestRequest(Transaction_URL);
+            IRestResponse<List<Transaction>> response = client.Get<List<Transaction>>(request);
+            if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)
+            {
+                ProcessErrorResponse(response);
+            }
+            return response.Data;
+        }
     }
 }

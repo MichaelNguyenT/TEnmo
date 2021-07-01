@@ -71,7 +71,7 @@ namespace TenmoServer.DAO
 
                     while (reader.Read())
                     {
-                        transactionList.Add(reader);
+                        transactionList.Add(GetTransactionFromReader(reader));
                     }
                 }
             }
@@ -80,7 +80,7 @@ namespace TenmoServer.DAO
                 Console.WriteLine(e.Message);
                 throw;
             }
-            return null;
+            return transactionList;
         }
         public Transaction ViewTransactionDetails(int transactionID)
         {

@@ -36,5 +36,14 @@ namespace TenmoServer.Controllers
             List<User> users = new List<User>(_userDao.GetUsers());
             return users;
         }
+
+        [HttpGet("/transaction")]
+        public List<Transaction> GetTransactions()
+        {
+            User user = _userDao.GetUser(User.Identity.Name);
+            int accountId =_userDao.GetAccount(user.UserId);
+            List<Transaction> transactions = _transactionDao.ViewTransactions(accountId);
+            return transactions;
+        }
     }
 }

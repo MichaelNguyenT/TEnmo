@@ -99,7 +99,25 @@ namespace TenmoClient
                 }
                 else if (menuSelection == 2)
                 {
-                    //todoooooooo view transaction
+                    //Needs to check both "to" and "from" transfers
+                    //Implement getting the transfer details for now.
+                    //Method to get the transfer details at the specific Id
+                    //Auth, Transactiondao, transactionController
+                    Console.WriteLine("---------");
+                    Console.WriteLine("Transfers\nID    From/To         Amount");
+                    Console.WriteLine("---------");
+                    List<Transaction> transactions = authService.GetTransactions();
+                    foreach (Transaction item in transactions)
+                    {
+                        if (item.FromId == UserService.GetUserId())
+                        {
+                            Console.WriteLine($"{item.Id}    From: {item.ToId}     ${item.Amount}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"{item.Id}    To: {item.FromId}     ${item.Amount}");
+                        }
+                    }
                 }
                 else if (menuSelection == 3)
                 {
