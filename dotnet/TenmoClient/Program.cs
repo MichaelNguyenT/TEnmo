@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using TenmoClient.Models;
+using System.Linq;
 
 namespace TenmoClient
 {
@@ -99,29 +100,42 @@ namespace TenmoClient
                 }
                 else if (menuSelection == 2)
                 {
-                    //Needs to check both "to" and "from" transfers
-                    //Implement getting the transfer details for now.
-                    //Method to get the transfer details at the specific Id
-                    //Auth, Transactiondao, transactionController
                     Console.WriteLine("---------");
-                    Console.WriteLine("Transfers\nID    From/To         Amount");
+                    Console.WriteLine("Transfers\nID\t From/To\t Amount");
                     Console.WriteLine("---------");
                     List<Transaction> transactions = authService.GetTransactions();
                     foreach (Transaction item in transactions)
                     {
-                        if (item.FromId == UserService.GetUserId())
+                        if (item.FromUserId == UserService.GetUserId())
                         {
-                            Console.WriteLine($"{item.Id}    From: {item.ToId}     ${item.Amount}");
+                            Console.WriteLine($"{item.Id}\t To: {item.ToUserName}\t ${item.Amount}");
                         }
                         else
                         {
-                            Console.WriteLine($"{item.Id}    To: {item.FromId}     ${item.Amount}");
+                            Console.WriteLine($"{item.Id}\t From: {item.FromUserName}\t ${item.Amount}");
                         }
+                    }
+                    Console.WriteLine("---------");
+                    Console.WriteLine("Select a transaction you would like more information on: ");
+                    string selectionAsString = Console.ReadLine();
+                    int selection = int.Parse(selectionAsString);
+                    Transaction transaction = transactions.FirstOrDefault(x => x.Id == selection);
+                    if (transaction != null)
+                    {
+                        Console.WriteLine("---------");
+                        Console.WriteLine("Transaction Details");
+                        Console.WriteLine("---------");
+                        Console.WriteLine();
+                        Console.WriteLine($"{transaction.Id}\n{transaction.FromUserName}\n{transaction.ToUserName}\n{transaction.Type}\n{transaction.Status}\n${transaction.Amount}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Please select an ID that is actually existent");
                     }
                 }
                 else if (menuSelection == 3)
                 {
-
+                    //method to approve/reject
                 }
                 else if (menuSelection == 4)
                 {
@@ -165,7 +179,8 @@ namespace TenmoClient
                 }
                 else if (menuSelection == 5)
                 {
-
+                    //request method in transactiondao, transactioncontroller,authservice
+                    //set to pending, refer to menuselect 3 to approve/reject
                 }
                 else if (menuSelection == 6)
                 {

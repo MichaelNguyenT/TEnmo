@@ -10,17 +10,19 @@ namespace TenmoServer.Models
     {
         public int? Id{get; set;}
 
-        [Required(ErrorMessage = "the field 'FromId' should not be blank.")]
-        public int FromId { get; set; }
+        [Required(ErrorMessage = "the field 'FromAccountId' should not be blank.")]
+        public int FromAccountId { get; set; }
 
-        [Required(ErrorMessage = "the field 'FromUserName' should not be blank.")]
         public string FromUserName { get; set; }
 
-        [Required(ErrorMessage = "the field 'ToId' should not be blank.")]
-        public int ToId { get; set; }
+        public int FromUserId { get; set; }
 
-        [Required(ErrorMessage = "the field 'ToUserName' should not be blank.")]
+        [Required(ErrorMessage = "the field 'ToAccountId' should not be blank.")]
+        public int ToAccountId { get; set; }
+
         public string ToUserName { get; set; }
+
+        public int ToUserId { get; set; }
 
         [Required(ErrorMessage = "the field 'Type' should not be blank.")]
         public string Type { get; set; }
@@ -29,11 +31,33 @@ namespace TenmoServer.Models
 
         [Required(ErrorMessage = "the field 'Amount' should not be blank.")]
         public decimal Amount { get; set; }
-        public Transaction CreateTransaction(int senderId, string senderUsername, int recieverId, string recieverUsername, decimal amount, string transactionType)
+        public Transaction CreateTransaction(int fromAccountId, string fromUsername, int fromUserId, int toAccountId, string toUsername, int toUserId, decimal amount, string transactionType)
         {
             Transaction transaction = new Transaction();
-            transaction.FromId = senderId;
-            transaction.ToId = recieverId;
+            transaction.FromAccountId = fromAccountId;
+            transaction.FromUserName = fromUsername;
+            transaction.FromUserId = fromUserId;
+            transaction.ToAccountId = toAccountId;
+            transaction.ToUserName = toUsername;
+            transaction.ToUserId = toUserId;
+            transaction.Amount = amount;
+            transaction.Type = transactionType;
+            if (transactionType == "Send")
+            {
+                transaction.Status = "Approved";
+            }
+            else
+            {
+                transaction.Status = "Pending";
+            }
+
+            return transaction;
+        }
+        public Transaction CreateTransaction(int fromAccountId, int toAccountId, decimal amount, string transactionType)
+        {
+            Transaction transaction = new Transaction();
+            transaction.FromAccountId = fromAccountId;
+            transaction.ToAccountId = toAccountId;
             transaction.Amount = amount;
             transaction.Type = transactionType;
             if (transactionType == "Send")
