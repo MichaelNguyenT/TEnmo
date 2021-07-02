@@ -29,7 +29,6 @@ namespace TenmoServer.DAO
                     if (amount <= balance)
                     {
                         conn.Open();
-
                         SqlCommand add = new SqlCommand("BEGIN TRANSACTION;" +
                                 "UPDATE accounts SET balance = balance + @amount WHERE user_id = @receiverId;" +
                                 "UPDATE accounts SET balance = balance - @amount WHERE user_id = @senderId;" +
@@ -54,7 +53,75 @@ namespace TenmoServer.DAO
             }
             return 0;
         }
-        public List<Transaction> ViewTransactions(int accountID)
+
+        public Transaction TransactionAtId(int transactionId)
+        {
+            Transaction transaction = new Transaction();
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    SqlCommand cmd = new SqlCommand("  SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, t.account_from, t.account_to, t.amount, a1.user_id AS from_user_id, a2.user_id AS to_user_id, u1.username AS from_username, u2.username AS to_username " +
+                                    "FROM transfers t " +
+                                    "JOIN accounts a1 ON a1.account_id = t.account_from " +
+                                    "JOIN accounts a2 ON a2.account_id = t.account_to " +
+                                    "JOIN users u1 ON u1.user_id = a1.user_id " +
+                                    "JOIN users u2 ON u2.user_id = a2.user_id " +
+                                    "WHERE t.transfer_id = @transferId", conn);
+                    cmd.Parameters.AddWithValue("@transferId", transactionId);
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        transaction = GetTransactionFromReader(reader);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+
+                Console.WriteLine(e.Message); ;
+            }
+            return transaction;
+        }
+    
+        public List<Transaction> ViewPendingTransactions(int accountId)
+        {
+            List<Transaction> transactionList = new List<Transaction>();
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    SqlCommand cmd = new SqlCommand("  SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, t.account_from, t.account_to, t.amount, a1.user_id AS from_user_id, a2.user_id AS to_user_id, u1.username AS from_username, u2.username AS to_username " +
+                                    "FROM transfers t " +
+                                    "JOIN accounts a1 ON a1.account_id = t.account_from " +
+                                    "JOIN accounts a2 ON a2.account_id = t.account_to " +
+                                    "JOIN users u1 ON u1.user_id = a1.user_id " +
+                                    "JOIN users u2 ON u2.user_id = a2.user_id " +
+                                    "WHERE t.transfer_status_id = 1 AND (t.account_from = @fromid OR t.account_to = @toid)", conn);
+                    cmd.Parameters.AddWithValue("@fromId", accountId);
+                    cmd.Parameters.AddWithValue("@toid", accountId);
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        transactionList.Add(GetTransactionFromReader(reader));
+                    }
+                }
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
+            }
+
+            return transactionList;
+        }
+        public List<Transaction> ViewTransactions(int accountId)
         {
             List<Transaction> transactionList = new List<Transaction>();
             try
@@ -70,8 +137,8 @@ namespace TenmoServer.DAO
                                     "JOIN users u1 ON u1.user_id = a1.user_id " +
                                     "JOIN users u2 ON u2.user_id = a2.user_id " +
                                     "WHERE t.account_from = @fromid OR t.account_to = @toid", conn);
-                    cmd.Parameters.AddWithValue("@fromId", accountID);
-                    cmd.Parameters.AddWithValue("@toid", accountID);
+                    cmd.Parameters.AddWithValue("@fromId", accountId);
+                    cmd.Parameters.AddWithValue("@toid", accountId);
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     while (reader.Read())
@@ -174,6 +241,84 @@ namespace TenmoServer.DAO
                 Amount = Convert.ToInt32(reader["amount"]),
             };
             return transaction;
+        }
+
+        public Transaction RequestTransactionCreation(int requesterUserId, int requesteeUserId, decimal amount)
+        {
+            Transaction transaction = new Transaction();
+            UserSqlDao userSqlDao = new UserSqlDao(connectionString);
+            int requesterAccountId = userSqlDao.GetAccount(requesterUserId);
+            int requesteeAccountId = userSqlDao.GetAccount(requesteeUserId);
+            transaction = transaction.CreateTransaction(requesteeAccountId, requesterAccountId, amount, "Request");
+            AddTransaction(transaction);
+            return transaction;
+        }
+
+        public void UpdateTransactionSql(Transaction transaction, int transferStatusId)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("UPDATE transfers SET transfer_status_id = @transferStatus " +
+                                          "WHERE transfer_id = @transferId", conn);
+                    cmd.Parameters.AddWithValue("@transferStatus", transferStatusId);
+                    cmd.Parameters.AddWithValue("@transferId", transaction.Id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception e)
+            {
+
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        public void CompleteRequest(Transaction transaction) 
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("UPDATE accounts SET balance = balance - @amount "+
+                                        "WHERE account_id = @requesteeAccountId " +
+                                        "UPDATE accounts SET balance = balance + @amount " +
+                                        "WHERE account_id = @requesterAccountId", conn);
+                    cmd.Parameters.AddWithValue("@requesteeAccountId", transaction.FromAccountId);
+                    cmd.Parameters.AddWithValue("@requesterAccountId", transaction.ToAccountId);
+                    cmd.Parameters.AddWithValue("amount", transaction.Amount);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception e)
+            {
+
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        public string TransactionStatusUpdate(int transactionId, int userChoice)
+        {
+            Transaction transaction = TransactionAtId(transactionId);
+            if (userChoice == 1)
+            {
+                transaction.Status = "Approved";
+                UpdateTransactionSql(transaction, 2);
+                CompleteRequest(transaction);
+                return "Request Completed";
+            }
+            else if (userChoice == 2)
+            {
+                transaction.Status = "Rejected";
+                UpdateTransactionSql(transaction, 3);
+                return "Request Rejected";
+            }
+            else
+            {
+                return "No changes made.";
+            }
         }
     }
 }

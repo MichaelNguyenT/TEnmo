@@ -30,6 +30,28 @@ namespace TenmoServer.Controllers
             return _transactionDao.SendMoney(user.UserId, receiverId, amount);
         }
 
+        [HttpPut("/request/{requesteeId}/{amount}")]
+        public string RequestTransaction(int requesteeId, decimal amount)
+        {
+            User user = _userDao.GetUser(User.Identity.Name);
+            Transaction transaction = _transactionDao.RequestTransactionCreation(user.UserId, requesteeId, amount);
+            if (transaction != null)
+            {
+                return $"You have made a request from {requesteeId} for ${amount}";
+            }
+            else
+            {
+                return "Transaction Failed, please try again";
+            }
+        }
+
+        [HttpPut("/completerequest/{transactionId}/{userChoice}")]
+        public string CompleteTransaction(int transactionId, int userChoice)
+        {
+            return _transactionDao.TransactionStatusUpdate(transactionId, userChoice);
+            
+        }
+
         [HttpGet("/user")]
         public List<User> GetUsers()
         {
@@ -43,6 +65,15 @@ namespace TenmoServer.Controllers
             User user = _userDao.GetUser(User.Identity.Name);
             int accountId =_userDao.GetAccount(user.UserId);
             List<Transaction> transactions = _transactionDao.ViewTransactions(accountId);
+            return transactions;
+        }
+
+        [HttpGet("/pendingtransaction")]
+        public List<Transaction> GetPendingTransactions()
+        {
+            User user = _userDao.GetUser(User.Identity.Name);
+            int accountId = _userDao.GetAccount(user.UserId);
+            List<Transaction> transactions = _transactionDao.ViewPendingTransactions(accountId);
             return transactions;
         }
     }

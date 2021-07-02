@@ -11,8 +11,11 @@ namespace TenmoClient
     {
         private readonly static string API_BASE_URL = "https://localhost:44315/";
         private readonly static string Transaction_URL = API_BASE_URL + "transaction";
+        private readonly static string CompletePending_URL = API_BASE_URL + "completerequest";
+        private readonly static string PendingTransaction_URL = API_BASE_URL + "pendingtransaction";
         private readonly static string Account_URL = API_BASE_URL + "account";
         private readonly static string USER_URL = API_BASE_URL + "user";
+        private readonly static string Request_URL = API_BASE_URL + "request";
         private readonly IRestClient client;
 
         public AuthService()
@@ -142,10 +145,43 @@ namespace TenmoClient
             return response.Data;
         }
 
+        public string RequestMoney(int requesteeId, decimal amount)
+        {
+            RestRequest request = new RestRequest(Request_URL + $"/{requesteeId}/{amount}");
+            IRestResponse<string> response = client.Put<string>(request);
+            if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)
+            {
+                ProcessErrorResponse(response);
+            }
+            return response.Data;
+        }
+
         public List<Transaction> GetTransactions()
         {
             RestRequest request = new RestRequest(Transaction_URL);
             IRestResponse<List<Transaction>> response = client.Get<List<Transaction>>(request);
+            if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)
+            {
+                ProcessErrorResponse(response);
+            }
+            return response.Data;
+        }
+
+        public List<Transaction> GetPendingTransactions()
+        {
+            RestRequest request = new RestRequest(PendingTransaction_URL);
+            IRestResponse<List<Transaction>> response = client.Get<List<Transaction>>(request);
+            if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)
+            {
+                ProcessErrorResponse(response);
+            }
+            return response.Data;
+        }
+
+        public string CompleteTransaction(int transactionId, int userChoice)
+        {
+            RestRequest request = new RestRequest(CompletePending_URL + $"/{transactionId}/{userChoice}");
+            IRestResponse<string> response = client.Put<string>(request);
             if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)
             {
                 ProcessErrorResponse(response);

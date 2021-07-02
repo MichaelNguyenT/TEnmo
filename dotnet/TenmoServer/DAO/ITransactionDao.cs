@@ -11,6 +11,8 @@ namespace TenmoServer.DAO
     {
         decimal SendMoney(int senderId,int receiverId, decimal amount);
         List<Transaction> ViewTransactions(int accountID);
-        Transaction ViewTransactionDetails(int transactionID);
+        Transaction RequestTransactionCreation(int requesterId, int requesteeId, decimal amount);
+        public string TransactionStatusUpdate(int transactionId, int userChoice);
+        public List<Transaction> ViewPendingTransactions(int accountId);
     }
 }

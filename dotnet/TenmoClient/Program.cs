@@ -135,7 +135,39 @@ namespace TenmoClient
                 }
                 else if (menuSelection == 3)
                 {
-                    //method to approve/reject
+                    Console.WriteLine("---------");
+                    Console.WriteLine("Transfers\nID\t From/To\t Amount");
+                    Console.WriteLine("---------");
+                    List<Transaction> transactions = authService.GetPendingTransactions();
+                    foreach (Transaction item in transactions)
+                    {
+                        if (item.FromUserId == UserService.GetUserId())
+                        {
+                            Console.WriteLine($"{item.Id}\t To: {item.ToUserName}\t ${item.Amount}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"{item.Id}\t From: {item.FromUserName}\t ${item.Amount}");
+                        }
+                    }
+                    Console.WriteLine("---------");
+                    Console.WriteLine("Select the transaction you would like to complete/reject: ");
+                    string transactionIdAsString = Console.ReadLine();
+                    int transactionId = int.Parse(transactionIdAsString);
+                    Console.WriteLine("---------");
+                    Console.WriteLine("Would you like to Complete(1) or Reject(2) the request? ");
+                    string completionOptionAsString = Console.ReadLine();
+                    int completionOption = int.Parse(completionOptionAsString);
+                    Transaction transaction = transactions.FirstOrDefault(x => x.Id == transactionId);
+                    if (transaction != null)
+                    {
+                        Console.WriteLine(authService.CompleteTransaction(transactionId, completionOption));
+                        
+                    }
+                    else
+                    {
+                        Console.WriteLine("Please select an ID that is actually existent");
+                    }
                 }
                 else if (menuSelection == 4)
                 {
@@ -148,16 +180,16 @@ namespace TenmoClient
                             {
                                 Console.WriteLine();
                                 Console.WriteLine($"{user.UserId} , {user.Username}");
-                            }  
+                            }
                         }
                         Console.WriteLine();
                         Console.WriteLine("---------");
                         Console.WriteLine("Who would you like to send money to? ");
                         string receiverIdString = Console.ReadLine();
-                        int receiverId = int.Parse(receiverIdString);
+                        int requesterId = int.Parse(receiverIdString);
 
                         //TODO fine tune selecting an ID thats not yourself
-                        if (receiverId == UserService.GetUserId())
+                        if (requesterId == UserService.GetUserId())
                         {
                             Console.WriteLine("You are unable to send money to yourself, please select a valid Id.");
                         }
@@ -168,7 +200,7 @@ namespace TenmoClient
                             string amountAsString = Console.ReadLine();
                             decimal amount = decimal.Parse(amountAsString);
                             Console.WriteLine("---------");
-                            Console.WriteLine("Your remaining balance is $" + authService.SendMoney(receiverId, amount));
+                            Console.WriteLine("Your remaining balance is $" + authService.SendMoney(requesterId, amount));
                         }
                     }
                     catch (Exception e)
@@ -181,6 +213,40 @@ namespace TenmoClient
                 {
                     //request method in transactiondao, transactioncontroller,authservice
                     //set to pending, refer to menuselect 3 to approve/reject
+                    try
+                    {
+                        List<User> listOfUsers = authService.GetUsers();
+                        foreach (User user in listOfUsers)
+                        {
+                            if (user.UserId != UserService.GetUserId())
+                            {
+                                Console.WriteLine();
+                                Console.WriteLine($"{user.UserId} , {user.Username}");
+                            }
+                        }
+                        Console.WriteLine();
+                        Console.WriteLine("---------");
+                        Console.WriteLine("Who would you like to request money from? ");
+                        string receiveeIdString = Console.ReadLine();
+                        int requesteeId = int.Parse(receiveeIdString);
+                        if (requesteeId == UserService.GetUserId())
+                        {
+                            Console.WriteLine("You are unable to request money from yourself, please select a valid Id.");
+                        }
+                        else
+                        {
+                            //Display error message if amount sent is more than balance
+                            Console.WriteLine("How much money would you like to request? ");
+                            string amountAsString = Console.ReadLine();
+                            decimal amount = decimal.Parse(amountAsString);
+                            Console.WriteLine("---------");
+                            Console.WriteLine(authService.RequestMoney(requesteeId, amount));
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
                 }
                 else if (menuSelection == 6)
                 {
