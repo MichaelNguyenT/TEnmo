@@ -94,7 +94,6 @@ namespace TenmoClient
                     }
                     catch (Exception e)
                     {
-
                         Console.WriteLine(e.Message);
                     }
                 }
@@ -108,15 +107,15 @@ namespace TenmoClient
                     {
                         if (item.FromUserId == UserService.GetUserId())
                         {
-                            Console.WriteLine($"{item.Id}\t To: {item.ToUserName}\t ${item.Amount}");
+                            Console.WriteLine($"ID: {item.Id}\t To: {item.ToUserName}\t ${item.Amount}");
                         }
                         else
                         {
-                            Console.WriteLine($"{item.Id}\t From: {item.FromUserName}\t ${item.Amount}");
+                            Console.WriteLine($"ID: {item.Id}\t From: {item.FromUserName}\t ${item.Amount}");
                         }
                     }
                     Console.WriteLine("---------");
-                    Console.WriteLine("Select a transaction you would like more information on: ");
+                    Console.WriteLine("Select a transaction via its ID you would like more information on: ");
                     string selectionAsString = Console.ReadLine();
                     int selection = int.Parse(selectionAsString);
                     Transaction transaction = transactions.FirstOrDefault(x => x.Id == selection);
@@ -126,7 +125,7 @@ namespace TenmoClient
                         Console.WriteLine("Transaction Details");
                         Console.WriteLine("---------");
                         Console.WriteLine();
-                        Console.WriteLine($"{transaction.Id}\n{transaction.FromUserName}\n{transaction.ToUserName}\n{transaction.Type}\n{transaction.Status}\n${transaction.Amount}");
+                        Console.WriteLine($"Transaction ID: {transaction.Id}\n From: {transaction.FromUserName}\n To: {transaction.ToUserName}\n Transaction Type: {transaction.Type}\n Transaction Status: {transaction.Status}\n Amount Transferred: ${transaction.Amount}");
                     }
                     else
                     {
@@ -143,15 +142,15 @@ namespace TenmoClient
                     {
                         if (item.FromUserId == UserService.GetUserId())
                         {
-                            Console.WriteLine($"{item.Id}\t To: {item.ToUserName}\t ${item.Amount}");
+                            Console.WriteLine($"ID:{item.Id}\t To: {item.ToUserName}\t ${item.Amount}");
                         }
                         else
                         {
-                            Console.WriteLine($"{item.Id}\t From: {item.FromUserName}\t ${item.Amount}");
+                            Console.WriteLine($"ID:{item.Id}\t From: {item.FromUserName}\t ${item.Amount}");
                         }
                     }
                     Console.WriteLine("---------");
-                    Console.WriteLine("Select the transaction you would like to complete/reject: ");
+                    Console.WriteLine("Select the ID of the transaction you would like to complete/reject: ");
                     string transactionIdAsString = Console.ReadLine();
                     int transactionId = int.Parse(transactionIdAsString);
                     Console.WriteLine("---------");
@@ -159,14 +158,14 @@ namespace TenmoClient
                     string completionOptionAsString = Console.ReadLine();
                     int completionOption = int.Parse(completionOptionAsString);
                     Transaction transaction = transactions.FirstOrDefault(x => x.Id == transactionId);
-                    if (transaction != null)
+                    if (transaction != null && (completionOption == 1 || completionOption == 2))
                     {
                         Console.WriteLine(authService.CompleteTransaction(transactionId, completionOption));
                         
                     }
                     else
                     {
-                        Console.WriteLine("Please select an ID that is actually existent");
+                        Console.WriteLine("Please select an ID that is actually existent or either 1 or 2 for your completion option.");
                     }
                 }
                 else if (menuSelection == 4)
@@ -179,16 +178,16 @@ namespace TenmoClient
                             if (user.UserId != UserService.GetUserId())
                             {
                                 Console.WriteLine();
-                                Console.WriteLine($"{user.UserId} , {user.Username}");
+                                Console.WriteLine($"ID:{user.UserId} , {user.Username}");
                             }
                         }
                         Console.WriteLine();
                         Console.WriteLine("---------");
-                        Console.WriteLine("Who would you like to send money to? ");
+                        Console.WriteLine("Enter the ID of the person you would like to send money to: ");
                         string receiverIdString = Console.ReadLine();
                         int requesterId = int.Parse(receiverIdString);
 
-                        //TODO fine tune selecting an ID thats not yourself
+                        //cannot send money to yourself
                         if (requesterId == UserService.GetUserId())
                         {
                             Console.WriteLine("You are unable to send money to yourself, please select a valid Id.");
@@ -200,7 +199,7 @@ namespace TenmoClient
                             string amountAsString = Console.ReadLine();
                             decimal amount = decimal.Parse(amountAsString);
                             Console.WriteLine("---------");
-                            Console.WriteLine("Your remaining balance is $" + authService.SendMoney(requesterId, amount));
+                            Console.WriteLine(authService.SendMoney(requesterId, amount));
                         }
                     }
                     catch (Exception e)
@@ -221,12 +220,12 @@ namespace TenmoClient
                             if (user.UserId != UserService.GetUserId())
                             {
                                 Console.WriteLine();
-                                Console.WriteLine($"{user.UserId} , {user.Username}");
+                                Console.WriteLine($"ID:{user.UserId} , {user.Username}");
                             }
                         }
                         Console.WriteLine();
                         Console.WriteLine("---------");
-                        Console.WriteLine("Who would you like to request money from? ");
+                        Console.WriteLine("Enter the ID of the person you would like to request money from: ");
                         string receiveeIdString = Console.ReadLine();
                         int requesteeId = int.Parse(receiveeIdString);
                         if (requesteeId == UserService.GetUserId())

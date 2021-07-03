@@ -42,7 +42,7 @@ namespace TenmoServer.DAO
             }
             return returnUser;
         }
-        public int GetAccount(int userId)
+        public int GetAccountId(int userId)
         {
             int accountId = 0;
 

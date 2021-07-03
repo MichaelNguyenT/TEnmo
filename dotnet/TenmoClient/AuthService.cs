@@ -134,10 +134,10 @@ namespace TenmoClient
             return response.Data;
         }
 
-        public decimal SendMoney(int receiverId, decimal amount)
+        public string SendMoney(int receiverId, decimal amount)
         {
             RestRequest request = new RestRequest(Account_URL + $"/{receiverId}/{amount}");
-            IRestResponse<decimal> response = client.Put<decimal>(request);
+            IRestResponse<string> response = client.Put<string>(request);
             if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)
             {
                 ProcessErrorResponse(response);

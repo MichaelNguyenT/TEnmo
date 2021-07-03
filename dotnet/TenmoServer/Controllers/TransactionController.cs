@@ -24,7 +24,7 @@ namespace TenmoServer.Controllers
         }
 
         [HttpPut("/account/{receiverId}/{amount}")]
-        public decimal SendMoney(int receiverId, decimal amount)
+        public string SendMoney(int receiverId, decimal amount)
         {
             User user = _userDao.GetUser(User.Identity.Name);
             return _transactionDao.SendMoney(user.UserId, receiverId, amount);
@@ -63,7 +63,7 @@ namespace TenmoServer.Controllers
         public List<Transaction> GetTransactions()
         {
             User user = _userDao.GetUser(User.Identity.Name);
-            int accountId =_userDao.GetAccount(user.UserId);
+            int accountId =_userDao.GetAccountId(user.UserId);
             List<Transaction> transactions = _transactionDao.ViewTransactions(accountId);
             return transactions;
         }
@@ -72,7 +72,7 @@ namespace TenmoServer.Controllers
         public List<Transaction> GetPendingTransactions()
         {
             User user = _userDao.GetUser(User.Identity.Name);
-            int accountId = _userDao.GetAccount(user.UserId);
+            int accountId = _userDao.GetAccountId(user.UserId);
             List<Transaction> transactions = _transactionDao.ViewPendingTransactions(accountId);
             return transactions;
         }

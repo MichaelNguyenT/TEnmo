@@ -17,7 +17,7 @@ namespace TenmoServer.DAO
             connectionString = dbConnectionString;
         }
 
-        public decimal SendMoney(int senderAccountId, int receiverAccountId, decimal amount)
+        public string SendMoney(int senderAccountId, int receiverAccountId, decimal amount)
         {
             //decimal balance = 0.0M;
             try
@@ -41,9 +41,9 @@ namespace TenmoServer.DAO
 
                         Transaction transaction = new Transaction();
                         UserSqlDao userSqlDao = new UserSqlDao(connectionString);
-                        AddTransaction(transaction.CreateTransaction(userSqlDao.GetAccount(senderAccountId), userSqlDao.GetAccount(receiverAccountId), amount, "Send"));
+                        AddTransaction(transaction.CreateTransaction(userSqlDao.GetAccountId(senderAccountId), userSqlDao.GetAccountId(receiverAccountId), amount, "Send"));
 
-                        return account.GetBalance(senderAccountId);
+                        return $"You sent ${amount} to user {userSqlDao.GetAccountId(receiverAccountId)}. Your remaining balance is ${account.GetBalance(senderAccountId)}";
                     }
                 }
             }
@@ -51,7 +51,7 @@ namespace TenmoServer.DAO
             {
                 Console.WriteLine(e.Message);
             }
-            return 0;
+            return "Transaction Failed";
         }
 
         public Transaction TransactionAtId(int transactionId)
@@ -247,8 +247,8 @@ namespace TenmoServer.DAO
         {
             Transaction transaction = new Transaction();
             UserSqlDao userSqlDao = new UserSqlDao(connectionString);
-            int requesterAccountId = userSqlDao.GetAccount(requesterUserId);
-            int requesteeAccountId = userSqlDao.GetAccount(requesteeUserId);
+            int requesterAccountId = userSqlDao.GetAccountId(requesterUserId);
+            int requesteeAccountId = userSqlDao.GetAccountId(requesteeUserId);
             transaction = transaction.CreateTransaction(requesteeAccountId, requesterAccountId, amount, "Request");
             AddTransaction(transaction);
             return transaction;
