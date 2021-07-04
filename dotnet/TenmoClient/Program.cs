@@ -99,39 +99,65 @@ namespace TenmoClient
                 }
                 else if (menuSelection == 2)
                 {
-                    Console.WriteLine("---------");
-                    Console.WriteLine("Transfers\nID\t From/To\t Amount");
+                    Console.WriteLine("---------\nTransfers\n");
+                    //Console.WriteLine("Transfers\nID\t From/To\t Amount");
+                    //TODO-------FIX THE FORMATTING
+                    Console.WriteLine("{0,-10} | {1,-10} | {2,10}", "ID", "From/To", "Amount");
                     Console.WriteLine("---------");
                     List<Transaction> transactions = authService.GetTransactions();
                     foreach (Transaction item in transactions)
                     {
                         if (item.FromUserId == UserService.GetUserId())
                         {
-                            Console.WriteLine($"ID: {item.Id}\t To: {item.ToUserName}\t ${item.Amount}");
+                            Console.WriteLine("ID: {0,-10} To: {1,-10} {2,5:C}", item.Id, item.ToUserName, item.Amount);
                         }
                         else
                         {
-                            Console.WriteLine($"ID: {item.Id}\t From: {item.FromUserName}\t ${item.Amount}");
+                            Console.WriteLine("ID: {0,-10} From: {1,-10} {2,5:C}", item.Id, item.FromUserName, item.Amount);
                         }
                     }
                     Console.WriteLine("---------");
-                    Console.WriteLine("Select a transaction via its ID you would like more information on: ");
+                    Console.WriteLine("Select a transaction via its ID you would like more information on (Enter '0' for previous menu): ");
                     string selectionAsString = Console.ReadLine();
-                    int selection = int.Parse(selectionAsString);
-                    Transaction transaction = transactions.FirstOrDefault(x => x.Id == selection);
-                    if (transaction != null)
+                    int selection = 1;
+                    Transaction transaction = new Transaction();
+
+                    //Loops while checking if transaction or its Id is null
+                    //TODO----Make this into a method to verify if something exists and loops until verified sucessfully
+                    while (transaction == null || transaction.Id == null)
                     {
-                        Console.WriteLine("---------");
-                        Console.WriteLine("Transaction Details");
-                        Console.WriteLine("---------");
-                        Console.WriteLine();
-                        Console.WriteLine($"Transaction ID: {transaction.Id}\n From: {transaction.FromUserName}\n To: {transaction.ToUserName}\n Transaction Type: {transaction.Type}\n Transaction Status: {transaction.Status}\n Amount Transferred: ${transaction.Amount}");
+                        //Returns the user back to the main menu if the input is '0'
+                        if (selectionAsString == "0")
+                        {
+                            break;
+                        }
+                        //Attempts to parse the string input to an int
+                        if (int.TryParse(selectionAsString, out selection))
+                        {
+                            //Attempts to set transaction to a transaction in the list where the user input matches the Id of the transaction
+                            //If the Id is not found, it will make transaction either null or create a transaction object but all of its properties are null
+                            transaction = transactions.FirstOrDefault(x => x.Id == selection);
+                            if (transaction == null || transaction.Id == null)
+                            {
+                                Console.WriteLine("Please enter a valid selection of an ID from above (Enter '0' for previous menu):");
+                                selectionAsString = Console.ReadLine();
+                            }
+                        }
+                        //Catches if the input can not be parsed as an int
+                        else
+                        {
+                            Console.WriteLine("Please enter a valid selection of an ID from above (Enter '0' for previous menu):");
+                            selectionAsString = Console.ReadLine();
+                        }
                     }
-                    else
-                    {
-                        Console.WriteLine("Please select an ID that is actually existent");
-                    }
+
+                    Console.WriteLine("---------");
+                    Console.WriteLine("Transaction Details");
+                    Console.WriteLine("---------");
+                    Console.WriteLine();
+                    Console.WriteLine($"Transaction ID: {transaction.Id}\n From: {transaction.FromUserName}\n To: {transaction.ToUserName}\n Transaction Type: {transaction.Type}\n Transaction Status: {transaction.Status}\n Amount Transferred: ${transaction.Amount}");
                 }
+
                 else if (menuSelection == 3)
                 {
                     Console.WriteLine("---------");
@@ -152,7 +178,8 @@ namespace TenmoClient
                     Console.WriteLine("---------");
                     Console.WriteLine("Select the ID of the transaction you would like to complete/reject: ");
                     string transactionIdAsString = Console.ReadLine();
-                    int transactionId = int.Parse(transactionIdAsString);
+                    int transactionId = 0;
+                    int.TryParse(transactionIdAsString, out transactionId);
                     Console.WriteLine("---------");
                     Console.WriteLine("Would you like to Complete(1) or Reject(2) the request? ");
                     string completionOptionAsString = Console.ReadLine();
