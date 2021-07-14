@@ -19,7 +19,6 @@ namespace TenmoServer.DAO
 
         public string SendMoney(int senderAccountId, int receiverAccountId, decimal amount)
         {
-            //decimal balance = 0.0M;
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))

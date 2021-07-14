@@ -29,6 +29,7 @@ namespace TenmoServer.Controllers
             User user = _userDao.GetUser(User.Identity.Name);
             decimal returnAccount = _dao.GetBalance(user.UserId);
             return returnAccount;
+            //User.findfirst("sub").value
         }
 
     }
