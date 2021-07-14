@@ -44,13 +44,16 @@ namespace TenmoServer.DAO
 
                         return $"You sent ${amount} to user {userSqlDao.GetAccountId(receiverAccountId)}. Your remaining balance is ${account.GetBalance(senderAccountId)}";
                     }
+                    else
+                    {
+                        return "Please enter a valid amount to send";
+                    }
                 }
             }
             catch (SqlException e)
             {
-                Console.WriteLine(e.Message);
+                return e.Message + " Transaction Failed";
             }
-            return "Transaction Failed";
         }
 
         public Transaction TransactionAtId(int transactionId)

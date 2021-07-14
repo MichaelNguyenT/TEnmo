@@ -150,12 +150,15 @@ namespace TenmoClient
                             selectionAsString = Console.ReadLine();
                         }
                     }
-
-                    Console.WriteLine("---------");
-                    Console.WriteLine("Transaction Details");
-                    Console.WriteLine("---------");
-                    Console.WriteLine();
-                    Console.WriteLine($"Transaction ID: {transaction.Id}\n From: {transaction.FromUserName}\n To: {transaction.ToUserName}\n Transaction Type: {transaction.Type}\n Transaction Status: {transaction.Status}\n Amount Transferred: ${transaction.Amount}");
+                    if (selectionAsString != "0")
+                    {
+                        Console.WriteLine("---------");
+                        Console.WriteLine("Transaction Details");
+                        Console.WriteLine("---------");
+                        Console.WriteLine();
+                        Console.WriteLine($"Transaction ID: {transaction.Id}\n From: {transaction.FromUserName}\n To: {transaction.ToUserName}\n Transaction Type: {transaction.Type}\n Transaction Status: {transaction.Status}\n Amount Transferred: ${transaction.Amount}");
+                    }
+                    
                 }
 
                 else if (menuSelection == 3)
@@ -225,8 +228,16 @@ namespace TenmoClient
                             Console.WriteLine("How much money would you like to send? ");
                             string amountAsString = Console.ReadLine();
                             decimal amount = decimal.Parse(amountAsString);
-                            Console.WriteLine("---------");
-                            Console.WriteLine(authService.SendMoney(requesterId, amount));
+                            if(amount > 0)
+                            {
+                                Console.WriteLine("---------");
+                                Console.WriteLine(authService.SendMoney(requesterId, amount));
+                            }
+                            else
+                            {
+                                Console.WriteLine("Please enter an amount greater than 0");
+                            }
+
                         }
                     }
                     catch (Exception e)
@@ -265,8 +276,15 @@ namespace TenmoClient
                             Console.WriteLine("How much money would you like to request? ");
                             string amountAsString = Console.ReadLine();
                             decimal amount = decimal.Parse(amountAsString);
-                            Console.WriteLine("---------");
-                            Console.WriteLine(authService.RequestMoney(requesteeId, amount));
+                            if (amount > 0)
+                            {
+                                Console.WriteLine("---------");
+                                Console.WriteLine(authService.RequestMoney(requesteeId, amount));
+                            }else
+                            {
+                                Console.WriteLine("Please enter an amount greater than 0");
+                            }
+
                         }
                     }
                     catch (Exception e)
